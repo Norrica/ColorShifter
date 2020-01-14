@@ -30,7 +30,7 @@
             <Label Content="Контраст"  HorizontalAlignment="Center" Margin="3,3,3,3"></Label>
             <Slider x:Name="Contra" Minimum="-100" Maximum="100"  Margin="8,0,8,0" ValueChanged="Contra_ValueChanged"></Slider>
             <Label Content="Яркость" HorizontalAlignment="Center"></Label>
-            <Slider x:Name="Brig" VerticalAlignment="Center" Margin="8,0,8,0" Minimum="0" Maximum="1" ValueChanged="Brig_ValueChanged"></Slider>
+            <Slider x:Name="Brig" VerticalAlignment="Center" Margin="8,0,8,0" Minimum="-1" Maximum="1" ValueChanged="Brig_ValueChanged" ></Slider>
         </StackPanel>
         <Image Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Left" Margin="0,0,-848,-711" Name="ImageControl" Width="1920" Height="1080" Stretch="None" VerticalAlignment="Top" MouseLeftButtonDown="ImageControl_MouseLeftButtonDown" Grid.RowSpan="2"/>
     </Grid>

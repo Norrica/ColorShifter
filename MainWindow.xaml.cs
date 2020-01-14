@@ -64,10 +64,10 @@ namespace WpfApp1
 			//MessageBox.Show((initialPixel.GetHue()/360.0F).ToString());
 			//MessageBox.Show(shift + " " + margin + "\n" + contrast);
 
+			
+			
+			
 			ShiftHue();
-			actualBitmap = actualBitmap.Contrast((int)(Math.Round(contrast)));
-			ShiftBrightness();
-
 			displayedBitmap = actualBitmap.ToBitmapImage();
 			ImageControl.Source = displayedBitmap;
 
@@ -108,7 +108,7 @@ namespace WpfApp1
 			}
 		}
 
-		private void ShiftBrightness()
+		private void ShiftBrightness(float brightness)
 		{
 			if (selectedFileName.Length > 0)
 			{
@@ -117,10 +117,13 @@ namespace WpfApp1
 					for (int j = 0; j < actualBitmap.Height; j++)
 					{
 						var pix = actualBitmap.GetPixel(i, j);
-						//var bright = pix.GetBrightness();
+						var bright = pix.GetBrightness();
+						if (bright+brightness<1 && bright+brightness>0)
+						{
+							var respix = ColorRGB.FromHSLA(pix.GetHue(), pix.GetSaturation(), bright+brightness, pix.A);
+							actualBitmap.SetPixel(i, j, respix);
 
-						var respix = ColorRGB.FromHSLA(pix.GetHue(), pix.GetSaturation(), brightness, pix.A);
-						actualBitmap.SetPixel(i, j, respix);
+						}
 					}
 				}
 
@@ -139,7 +142,6 @@ namespace WpfApp1
 		private void Shifter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			shift = e.NewValue;
-			//ShiftHue();
 		}
 
 		private void Threshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -149,16 +151,10 @@ namespace WpfApp1
 		}
 		private void Contra_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
-			//if (e.NewValue > e.OldValue)
-			//{
-			//	contrast = e.NewValue;
-			//}
-			//else
-			//{
-			//	contrast = 0 - e.NewValue;
-			//}
 			contrast = e.NewValue;
-			
+			actualBitmap = actualBitmap.Contrast((int)(Math.Round(contrast)));
+			displayedBitmap = actualBitmap.ToBitmapImage();
+			ImageControl.Source = displayedBitmap;
 		}
 		private void Save_Click(object sender, RoutedEventArgs e)
 		{
@@ -168,7 +164,12 @@ namespace WpfApp1
 		private void Brig_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			brightness = e.NewValue;
+			ShiftBrightness((float)brightness);
+			displayedBitmap = actualBitmap.ToBitmapImage();
+			ImageControl.Source = displayedBitmap;
 		}
+
+
 	}
 
 

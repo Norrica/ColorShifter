@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace WpfApp1
 {
@@ -26,16 +27,20 @@ namespace WpfApp1
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		string selectedFileName = null;
+		static string selectedFileName = @"D:\AAA\Картинки\!1.png";
 		Color initialPixel = new Color();
 		double shift = 0;
 		double margin = 0;
+		double contrast = 0;
+		double brightness = 0;
 		BitmapImage displayedBitmap = new BitmapImage();
-		Bitmap actualBitmap = null;
+		Bitmap actualBitmap = new Bitmap(selectedFileName);
 
 		public MainWindow()
 		{
 			InitializeComponent();
+			displayedBitmap = actualBitmap.ToBitmapImage();
+			ImageControl.Source = displayedBitmap;
 		}
 		private void BrowseButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -56,19 +61,31 @@ namespace WpfApp1
 		}
 		private void RotateButton_Click(object sender, RoutedEventArgs e)
 		{
-			MessageBox.Show(shift + " " + margin + "\n" + initialPixel.ToString());
+			//MessageBox.Show((initialPixel.GetHue()/360.0F).ToString());
+			//MessageBox.Show(shift + " " + margin + "\n" + contrast);
+
+			ShiftHue();
+			actualBitmap = actualBitmap.Contrast((int)(Math.Round(contrast)));
+			ShiftBrightness();
+
+			displayedBitmap = actualBitmap.ToBitmapImage();
+			ImageControl.Source = displayedBitmap;
+
+		}
+
+		private void ShiftHue()
+		{
 			if (selectedFileName.Length > 0)
 			{
-				
 				for (int i = 0; i < actualBitmap.Width; i++)
 				{
 					for (int j = 0; j < actualBitmap.Height; j++)
 					{
 						var pix = actualBitmap.GetPixel(i, j);
-						var hue = pix.GetHue()/360.0F;
-						if (!(hue > initialPixel.GetHue() + (float)margin) ||
-							!(hue < initialPixel.GetHue() - (float)margin))
-						{
+						var hue = pix.GetHue() / 360.0F;
+						if ((hue < initialPixel.GetHue() / 360.0F + (float)margin) &&
+							(hue > initialPixel.GetHue() / 360.0F - (float)margin))
+						{ 
 							if (hue + shift > 1)
 							{
 								hue = (float)(-1 + hue + shift);
@@ -81,34 +98,48 @@ namespace WpfApp1
 							{
 								hue = hue + (float)shift;
 							}
-							
-							var respix = ColorRGB.FromHSLA(hue, pix.GetSaturation(), pix.GetBrightness(),pix.A);
-							Color color = respix;
-							actualBitmap.SetPixel(i, j, color);
+
+							var respix = ColorRGB.FromHSLA(hue, pix.GetSaturation(), pix.GetBrightness(), pix.A);							
+							actualBitmap.SetPixel(i, j, respix);
 						}
 
 					}
 				}
-				displayedBitmap = actualBitmap.ToBitmapImage();
-				ImageControl.Source = displayedBitmap;
 			}
-
 		}
 
+		private void ShiftBrightness()
+		{
+			if (selectedFileName.Length > 0)
+			{
+				for (int i = 0; i < actualBitmap.Width; i++)
+				{
+					for (int j = 0; j < actualBitmap.Height; j++)
+					{
+						var pix = actualBitmap.GetPixel(i, j);
+						//var bright = pix.GetBrightness();
 
+						var respix = ColorRGB.FromHSLA(pix.GetHue(), pix.GetSaturation(), brightness, pix.A);
+						actualBitmap.SetPixel(i, j, respix);
+					}
+				}
+
+			}
+		}
 		private void ImageControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			System.Windows.Point Point = new System.Windows.Point();
-			Point = e.MouseDevice.GetPosition(ImageControl);
-			var x = (int)Math.Round(Point.X);
-			var y = (int)Math.Round(Point.Y);
+			//System.Windows.Point Point = new System.Windows.Point();
+			System.Windows.Point point = e.MouseDevice.GetPosition(ImageControl);
+			var x = (int)Math.Round(point.X);
+			var y = (int)Math.Round(point.Y);
 			initialPixel = actualBitmap.GetPixel(x, y);
+			MessageBox.Show(initialPixel.GetBrightness().ToString());
 		}
 
 		private void Shifter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			shift = e.NewValue;
-
+			//ShiftHue();
 		}
 
 		private void Threshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -116,7 +147,31 @@ namespace WpfApp1
 			margin = e.NewValue;
 
 		}
+		private void Contra_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			//if (e.NewValue > e.OldValue)
+			//{
+			//	contrast = e.NewValue;
+			//}
+			//else
+			//{
+			//	contrast = 0 - e.NewValue;
+			//}
+			contrast = e.NewValue;
+			
+		}
+		private void Save_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void Brig_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			brightness = e.NewValue;
+		}
 	}
+
+
 	public class ColorRGB
 	{
 		public byte R;
@@ -290,7 +345,82 @@ namespace WpfApp1
 				return bitmapImage;
 			}
 		}
+		public static Bitmap Contrast(this Bitmap sourceBitmap, int threshold)
+		{
+			BitmapData sourceData = sourceBitmap.LockBits(new System.Drawing.Rectangle(0, 0,
+										sourceBitmap.Width, sourceBitmap.Height),
+										ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
+
+			byte[] pixelBuffer = new byte[sourceData.Stride * sourceData.Height];
+
+
+			Marshal.Copy(sourceData.Scan0, pixelBuffer, 0, pixelBuffer.Length);
+
+
+			sourceBitmap.UnlockBits(sourceData);
+
+
+			double contrastLevel = Math.Pow((100.0 + threshold) / 100.0, 2);
+
+
+			double blue = 0;
+			double green = 0;
+			double red = 0;
+
+
+			for (int k = 0; k + 4 < pixelBuffer.Length; k += 4)
+			{
+				blue = ((((pixelBuffer[k] / 255.0) - 0.5) *
+							contrastLevel) + 0.5) * 255.0;
+
+
+				green = ((((pixelBuffer[k + 1] / 255.0) - 0.5) *
+							contrastLevel) + 0.5) * 255.0;
+
+
+				red = ((((pixelBuffer[k + 2] / 255.0) - 0.5) *
+							contrastLevel) + 0.5) * 255.0;
+
+
+				if (blue > 255)
+				{ blue = 255; }
+				else if (blue < 0)
+				{ blue = 0; }
+
+
+				if (green > 255)
+				{ green = 255; }
+				else if (green < 0)
+				{ green = 0; }
+
+
+				if (red > 255)
+				{ red = 255; }
+				else if (red < 0)
+				{ red = 0; }
+
+
+				pixelBuffer[k] = (byte)blue;
+				pixelBuffer[k + 1] = (byte)green;
+				pixelBuffer[k + 2] = (byte)red;
+			}
+
+
+			Bitmap resultBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
+
+
+			BitmapData resultData = resultBitmap.LockBits(new System.Drawing.Rectangle(0, 0,
+										resultBitmap.Width, resultBitmap.Height),
+										ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+
+
+			Marshal.Copy(pixelBuffer, 0, resultData.Scan0, pixelBuffer.Length);
+			resultBitmap.UnlockBits(resultData);
+
+
+			return resultBitmap;
+		}
 	}
 }
 

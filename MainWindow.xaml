@@ -5,26 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="1080">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="50"></RowDefinition>
-            <RowDefinition MaxHeight="1080"></RowDefinition>
+            <RowDefinition MaxHeight="100" Height="50*"></RowDefinition>
+            <RowDefinition MaxHeight="1080" Height="42*"></RowDefinition>
+            
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="100"></ColumnDefinition>
             <ColumnDefinition MinWidth="100"></ColumnDefinition>
             <ColumnDefinition MinWidth="100"></ColumnDefinition>
             <ColumnDefinition MinWidth="100"></ColumnDefinition>
+            <ColumnDefinition MinWidth="100"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Row="0" Grid.Column="0" Content="Browse a File" Height="34" HorizontalAlignment="Center" Margin="8,8,8,8" Name="BrowseButton" VerticalAlignment="Top" Width="Auto" Foreground="Maroon" FontSize="16" FontFamily="Georgia" Click="BrowseButton_Click" />
-        <Label Content="Смещение" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0"></Label>
-        <Slider Grid.Row="0" Grid.Column="1" VerticalAlignment="Bottom" Margin="8,8,8,8" x:Name="Shifter" Maximum="1" Minimum="-1" Orientation="Horizontal"  ValueChanged="Shifter_ValueChanged"/>
-        <Label Content="Порог" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="2" Grid.Row="0"></Label>
-        <Slider Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="8,8,8,8"  x:Name="Threshold" Maximum="1" Minimum="0" Orientation="Horizontal"  ValueChanged="Threshold_ValueChanged"/>
-        <Button Grid.Row="0" Grid.Column="3"  Content="Preview" FontFamily="Georgia" FontSize="12" Foreground="Maroon" Height="26" HorizontalAlignment="Center" Margin="8,8,8,8" Name="RotateButton" VerticalAlignment="Center" Width="Auto" Click="RotateButton_Click" />
-
-
-        <Image Grid.Row="1" Grid.ColumnSpan="4" HorizontalAlignment="Center" Margin="0" Name="ImageControl" Width="1920" Height="1080" Stretch="None" VerticalAlignment="Top" MouseLeftButtonDown="ImageControl_MouseLeftButtonDown"/>
+        <Button Grid.Row="0" Grid.Column="0" Content="Открыть" Height="34" HorizontalAlignment="Center" Margin="74,8,74,0" Name="BrowseButton" VerticalAlignment="Top" Width="Auto" FontSize="16" Click="BrowseButton_Click" />
+        <Label Content="Смещение" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0" Margin="73,0"></Label>
+        <Slider Grid.Row="0" Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,8,8" x:Name="Shifter" Maximum="1" Minimum="0" Orientation="Horizontal"  ValueChanged="Shifter_ValueChanged"/>
+        <Label Content="Порог" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="2" Grid.Row="0" Margin="86,0,85,0"></Label>
+        <Slider Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="8,0,8,8"  x:Name="Threshold" Maximum="1" Minimum="0" Orientation="Horizontal"  ValueChanged="Threshold_ValueChanged"/>
+        <Button Grid.Row="0" Grid.Column="4"  Content="Превью" Height="20" HorizontalAlignment="Center" Margin="83,0,83,3" Name="RotateButton" VerticalAlignment="Bottom" Width="Auto" Click="RotateButton_Click" />
+        <Button x:Name="Save" Content="Сохранить" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="76,3,76,0" Click="Save_Click" Grid.Column="4"></Button>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="3">
+            <Label Content="Контраст"  HorizontalAlignment="Center" Margin="3,3,3,3"></Label>
+            <Slider x:Name="Contra" Minimum="-100" Maximum="100"  Margin="8,0,8,0" ValueChanged="Contra_ValueChanged"></Slider>
+            <Label Content="Яркость" HorizontalAlignment="Center"></Label>
+            <Slider x:Name="Brig" VerticalAlignment="Center" Margin="8,0,8,0" Minimum="0" Maximum="1" ValueChanged="Brig_ValueChanged"></Slider>
+        </StackPanel>
+        <Image Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Left" Margin="0,0,-848,-711" Name="ImageControl" Width="1920" Height="1080" Stretch="None" VerticalAlignment="Top" MouseLeftButtonDown="ImageControl_MouseLeftButtonDown" Grid.RowSpan="2"/>
     </Grid>
 </Window>
